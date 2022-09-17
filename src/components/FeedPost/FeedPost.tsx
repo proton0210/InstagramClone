@@ -116,7 +116,7 @@ const FeedPost = ({post}: IFeedPost) => {
           <Text style={styles.bold}>{post.user.username}</Text>{' '}
           {post.description}
         </Text>
-        <Text onPress={toggleDescriptionExpanded}>
+        <Text style={{color: 'grey'}} onPress={toggleDescriptionExpanded}>
           {isDescriptionExpanded ? 'less' : 'more'}
         </Text>
 
