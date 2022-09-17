@@ -1,4 +1,11 @@
-import {View, Text, StyleSheet, Image, TextStyle} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextStyle,
+  Pressable,
+} from 'react-native';
 import colors from '../../theme/colors';
 import styles from './styles';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -7,11 +14,36 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Comment from '../Comment';
 import {IPost} from '../../types/models';
+import React from 'react';
+import DoublePressable from '../DoublePressable';
 
 interface IFeedPost {
   post: IPost;
 }
 const FeedPost = ({post}: IFeedPost) => {
+  const [isDescriptionExpanded, set_isDescriptionexpanded] =
+    React.useState(false);
+  const [isLiked, set_isLiked] = React.useState(false);
+
+  const toggleDescriptionExpanded = () => {
+    set_isDescriptionexpanded(v => !v); // use this to update on the previous value
+  };
+
+  const toggleLike = () => {
+    set_isLiked(v => !v);
+  };
+
+  let lastTap = 0;
+  const handleDoublePress = () => {
+    const now = Date.now();
+    const DOUBLE_PRESS_DELAY = 300;
+    if (now - lastTap < DOUBLE_PRESS_DELAY) {
+      toggleLike();
+    } else {
+      lastTap = now;
+    }
+  };
+
   return (
     <View style={styles.post}>
       {/* Post Header */}
@@ -33,22 +65,26 @@ const FeedPost = ({post}: IFeedPost) => {
       </View>
 
       {/* Post Content */}
-      <Image
-        source={{
-          uri: post.image,
-        }}
-        style={styles.image}
-      />
+      <DoublePressable onDoublePress={handleDoublePress}>
+        <Image
+          source={{
+            uri: post.image,
+          }}
+          style={styles.image}
+        />
+      </DoublePressable>
 
       {/* Post Footer */}
       <View style={styles.footer}>
         <View style={styles.iconContainer}>
-          <AntDesign
-            name={'hearto'}
-            size={24}
-            style={styles.icon}
-            color={colors.black}
-          />
+          <Pressable onPress={toggleLike}>
+            <AntDesign
+              name={isLiked ? 'heart' : 'hearto'}
+              size={24}
+              style={styles.icon}
+              color={isLiked ? colors.accent : colors.black}
+            />
+          </Pressable>
           <Ionicons
             name="chatbubble-outline"
             size={24}
@@ -75,10 +111,13 @@ const FeedPost = ({post}: IFeedPost) => {
           <Text style={styles.bold}>{post.nofLikes} others</Text>
         </Text>
 
-        {/* Post Caption */}
-        <Text style={styles.text}>
+        {/* Post Description */}
+        <Text style={styles.text} numberOfLines={isDescriptionExpanded ? 0 : 3}>
           <Text style={styles.bold}>{post.user.username}</Text>{' '}
           {post.description}
+        </Text>
+        <Text onPress={toggleDescriptionExpanded}>
+          {isDescriptionExpanded ? 'less' : 'more'}
         </Text>
 
         {/* Post Comments */}
@@ -87,7 +126,7 @@ const FeedPost = ({post}: IFeedPost) => {
           <Comment key={comment.id} comment={comment} />
         ))}
 
-        {/*Posted Datae */}
+        {/*Posted Date */}
         <Text style={{color: 'grey'}}>{post.createdAt}</Text>
       </View>
     </View>
