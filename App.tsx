@@ -1,10 +1,12 @@
 import {View, Text, StyleSheet, ScrollView, FlatList} from 'react-native';
 import HomeScreen from './src/screens/HomeScreen';
+import CommentsScreen from './src/screens/CommentsScreen';
+import React from 'react';
 
-const App = () => {
+let App = () => {
   return (
     <View style={styles.app}>
-      <HomeScreen />
+      <CommentsScreen />
     </View>
   );
 };

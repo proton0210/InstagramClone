@@ -16,11 +16,14 @@ import Comment from '../Comment';
 import {IPost} from '../../types/models';
 import React from 'react';
 import DoublePressable from '../DoublePressable';
+import Carousel from '../Carousel';
+import VideoPlayer from '../VideoPlayer';
 
 interface IFeedPost {
   post: IPost;
+  isVisible: boolean;
 }
-const FeedPost = ({post}: IFeedPost) => {
+const FeedPost = ({post, isVisible}: IFeedPost) => {
   const [isDescriptionExpanded, set_isDescriptionexpanded] =
     React.useState(false);
   const [isLiked, set_isLiked] = React.useState(false);
@@ -33,16 +36,18 @@ const FeedPost = ({post}: IFeedPost) => {
     set_isLiked(v => !v);
   };
 
-  let lastTap = 0;
-  const handleDoublePress = () => {
-    const now = Date.now();
-    const DOUBLE_PRESS_DELAY = 300;
-    if (now - lastTap < DOUBLE_PRESS_DELAY) {
-      toggleLike();
-    } else {
-      lastTap = now;
-    }
-  };
+  let content = null;
+  if (post.image) {
+    content = (
+      <DoublePressable onDoublePress={toggleLike}>
+        <Image style={styles.image} source={{uri: post.image}} />
+      </DoublePressable>
+    );
+  } else if (post.images) {
+    content = <Carousel images={post.images} />;
+  } else if (post.video) {
+    content = <VideoPlayer uri={post.video} paused={!isVisible} />;
+  }
 
   return (
     <View style={styles.post}>
@@ -65,14 +70,7 @@ const FeedPost = ({post}: IFeedPost) => {
       </View>
 
       {/* Post Content */}
-      <DoublePressable onDoublePress={handleDoublePress}>
-        <Image
-          source={{
-            uri: post.image,
-          }}
-          style={styles.image}
-        />
-      </DoublePressable>
+      {content}
 
       {/* Post Footer */}
       <View style={styles.footer}>
